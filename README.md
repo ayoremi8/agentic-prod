@@ -846,7 +846,7 @@ We wrap everything up by defining a shared `monitoring` network so all these ser
 
 We have a running database but it is currently empty. An AI system relies heavily on **Structured Data**. We aren’t just throwing JSON blobs into a NoSQL store, we need strict relationships between Users, their Chat Sessions, and the AI’s State.
 
-![Data Persistence Layer](https://miro.medium.com/v2/resize:fit:1250/1*mCc2WO9byzqBdsvda73Rhg.png)
+
 *Data Persistence Layer (Created by Ayo Remi)*
 
 To handle this, we are going to use **SQLModel**. It is a library that combines **SQLAlchemy** (for database interaction) and **Pydantic** (for data validation).
@@ -857,7 +857,7 @@ To handle this, we are going to use **SQLModel**. It is a library that combines 
 
 In software engineering, **Don’t Repeat Yourself (DRY)** is a core principle. Since almost every table in our database will need a timestamp to track when a record was created, we shouldn’t copy-paste that logic into every file. instead, we create a `BaseModel`.
 
-![Structured Modeling](https://miro.medium.com/v2/resize:fit:875/1*5cuOQQn4h0tPyKG-hn9CFA.png)
+
 *Structured Modeling (Created by Ayo Remi)*
 
 For that, create `app/models/base.py` file which will hold our abstract base model:
@@ -888,7 +888,7 @@ Now we can build our core entities. The most fundamental requirement for any use
 
 Similar to how api based ai models providers handle user data, we will create a `User` model with email and hashed password fields.
 
-![Entity Definition](https://miro.medium.com/v2/resize:fit:875/1*6xN_OBlno3BUyj-g7ur9ig.png)
+
 *Entity Definition (Created by Ayo Remi)*
 
 Create `app/models/user.py` file to define the User model:
@@ -976,7 +976,7 @@ This creates a `Session` model that links to the `User` model via a foreign key.
 
 Finally, we need a model for **LangGraph Persistence**. LangGraph is stateful, if the server restarts, we don’t want the AI to forget what step it was on.
 
-![DTOs](https://miro.medium.com/v2/resize:fit:1250/1*OTpUnG6hUc3TEnAnyoiGig.png)
+
 *DTOs (Created by Ayo Remi)*
 
 We need a `Thread` model that acts as an anchor for these checkpoints. Create `app/models/thread.py`.
@@ -1154,7 +1154,7 @@ In a production environment, you cannot trust user input, and you cannot allow u
 
 You have also see in many API providers like together.ai, you see limited requests per minute to prevent abuse. This helps protect your infrastructure and control costs.
 
-![Security Layer](https://miro.medium.com/v2/resize:fit:1250/1*p41dMjj4EpofqMYciu2noQ.png)
+
 *Security Layer (Created by Ayo Remi)*
 
 If you deploy an AI agent without safeguards, two things will happen:
@@ -1166,7 +1166,7 @@ If you deploy an AI agent without safeguards, two things will happen:
 
 We need to implement **Rate Limiting** and **Sanitization utilities** before we write our business logic.
 
-![Rate Limit test](https://miro.medium.com/v2/resize:fit:875/1*Q77Wxu2NrSShL9A_PHGPDA.png)
+
 *Rate Limit test (Created by Ayo Remi)*
 
 First, let’s look at Rate Limiting. We are going to use `SlowAPI`, a library that integrates easily with FastAPI. We need to define *how* we identify a unique user (usually by IP address) and apply the default limits we defined in our settings earlier. Let's create a `app/core/limiter.py` for this:
@@ -1193,7 +1193,7 @@ This way we can later decorate any specific API route with `@limiter.limit(...)`
 
 Next, we need **Sanitization**. Even though modern frontend frameworks handle a lot of XSS (Cross-Site Scripting) protection, a backend API should never blindly trust incoming strings.
 
-![Sanitization Check](https://miro.medium.com/v2/resize:fit:875/1*1t7zcACiaGjfp9-d1whZdw.png)
+
 *Sanitization Check (Created by Ayo Remi)*
 
 We need a utility function to sanitize strings. We will create `app/utils/sanitization.py` for this step:
@@ -1303,7 +1303,7 @@ One of the hardest parts of scaling AI apps is **Context Window Management**. If
 
 > A production system needs to know how to “trim” messages intelligently.
 
-![Context Management](https://miro.medium.com/v2/resize:fit:875/1*9l6m-J1-7tzquFSxSt_uaA.png)
+
 *Context Management (Created by Ayo Remi)*
 
 We also need to handle the quirky output formats of newer models. For example, some reasoning models return **Thought Blocks** separate from the actual text. For that we need to create `app/utilss/graph.py`.
@@ -1377,7 +1377,7 @@ Once we have configured our dependencies, settings, models, schemas, security, a
 
 In a well-architected application, API routes (Controllers) should be simple. They shouldn’t contain complex business logic or raw database queries. Instead, that work belongs in services, which makes the code easier to test, reuse, and maintain.
 
-![Service Layer](https://miro.medium.com/v2/resize:fit:1250/1*Ks7aNfaEtf8aLRDfMGlD7A.png)
+
 *Service Layer (Created by Ayo Remi)*
 
 Connecting to a database in a script is easy. Connecting to a database in a high-concurrency API serving thousands of users is hard. If you open a new connection for every request, your database will crash under load.
@@ -1386,7 +1386,7 @@ Connecting to a database in a script is easy. Connecting to a database in a high
 
 To solve this, we are going to use **Connection Pooling**. We keep a pool of open connections ready to use, minimizing the overhead of the “handshake” process.
 
-![Connection Pool](https://miro.medium.com/v2/resize:fit:875/1*9GQ9H6JV3Kb_-aWNz6zD6Q.png)
+
 *Connection Pool (Creation by Ayo Remi)*
 
 Let’s create `app/services/database.py` for this:
@@ -1489,7 +1489,7 @@ The other component are pretty simple CRUD methods for creating and fetching use
 
 Relying on a single AI model (like GPT-4) is a risk. What if OpenAI goes down? What if you hit a rate limit? A production system needs **Resilience** and **Fallbacks** to ensure high availability.
 
-![LLM Check](https://miro.medium.com/v2/resize:fit:875/1*42G1vS33RD-siCxCnrjFzw.png)
+
 *LLM Check (Created by Ayo Remi)*
 
 We are going to implement two advanced patterns here:
@@ -1682,7 +1682,7 @@ Here we `switch_to_next_model` in a circular manner. If the current model fails 
 
 We are also binding tools to the LLM instance so that it can use them in an Agent context.
 
-![Circuit Break](https://miro.medium.com/v2/resize:fit:875/1*6-y5HWu68d-fECfowWCGqg.png)
+
 *Circuit Break (Created by Ayo Remi)*
 
 Finally, we create a global instance of the `LLMService` for easy access throughout the application:
@@ -1706,7 +1706,7 @@ In many chat applications, users expect the AI to remember *facts about them* ac
 
 So, we are also going to integrate **Long-Term Memory** using `mem0ai`. While the conversation history (Short-Term Memory) helps the agent remember *this* chat, Long-Term Memory helps it remember *facts about the user* across all chats.
 
-![Long term memory](https://miro.medium.com/v2/resize:fit:1250/1*wyBkaRzagua7iX7fR453NQ.png)
+
 *Long term memory (Created by Ayo Remi)*
 
 In a production system, we treat prompts as **Assets** which means separating them from code. This allows prompt engineers to update/improve prompts without changing application logic. We store them as Markdown files. Let’s create `app/core/prompts/system.md` that will define the system prompt for our agent:
@@ -1757,7 +1757,7 @@ Many modern AI agents need to interact with external systems to be truly useful.
 
 ### <a id="6f9a"></a>Tool Calling Feature
 
-![Tool feature](https://miro.medium.com/v2/resize:fit:875/1*R_nkHq1wBXFUWclqu2_oSg.png)
+
 *Tool feature (Created by Ayo Remi)*
 
 We need to create a separate `app/core/langgraph/tools/duckduck...rch.py` for this because each tool should be modular and testable:
@@ -2071,7 +2071,7 @@ Now comes the most critical part of our API security: **The Dependency Functions
 
 In FastAPI, we don’t manually check tokens inside every route function. That would be repetitive and error-prone. Instead, we create a reusable dependency called `get_current_user`.
 
-![Auth Flow](https://miro.medium.com/v2/resize:fit:875/1*NmVazl_uTgX__Fg-YyVdxg.png)
+
 *Auth Flow (Created by Ayo Remi)*
 
 When a route declares `user: User = Depends(get_current_user)`, FastAPI automatically:
@@ -2158,7 +2158,7 @@ Now we can build the endpoints. First, **User Registration**.
 
 We apply our `limiter` here because registration endpoints are prime targets for spam bots.
 
-![Real time stream](https://miro.medium.com/v2/resize:fit:875/1*ixpKUpSWC45SExT9kPDegw.png)
+
 *Real time stream (Created by Ayo Remi)*
 
 We also aggressively sanitize inputs to keep our database clean.
@@ -2288,7 +2288,7 @@ In a system serving 10,000 users, we need to know how fast it’s working, who i
 
 On production scale this is achieve through **Prometheus Metrics** and **Context-Aware Logging** which helps us trace issues back to specific users/sessions.
 
-![Observability](https://miro.medium.com/v2/resize:fit:875/1*StUmX5gXNVk3yEp-QzClHA.png)
+
 *Observability (Created by Ayo Remi)*
 
 First, let’s define the metrics we want to track. We use the `prometheus_client` library to expose counters and histograms.
@@ -2363,7 +2363,7 @@ Developers normally solve both problems with **Middleware**. Middleware wraps ev
 2.  Stop the timer after the response.
 3.  Inject `user_id` and `session_id` into the logging context.
 
-![Middleware Test](https://miro.medium.com/v2/resize:fit:1250/1*AlBXtTdH6i4txlp48qx_eQ.png)
+
 *Middleware Test (Created by Ayo Remi)*
 
 Let’s create `app/core/middleware.py` file that will implement both Metrics and Logging Context middleware:
@@ -2699,7 +2699,7 @@ Its job is strictly **Configuration and Wiring**:
 2.  **Middleware Chain:** ensuring every request passes through our logging, metrics, and security layers.
 3.  **Exception Handling:** Converting raw Python errors into friendly JSON responses.
 
-![Context Management Async](https://miro.medium.com/v2/resize:fit:875/1*HRPuwX4C5IbXMFUYPNkfbw.png)
+
 *Context Management Async (Created by Ayo Remi)*
 
 In older FastAPI versions, we used `@app.on_event("startup")`. The modern, production-grade way is using an `asynccontextmanager`. This make sure that resources (like database pools or ML models) are cleaned up correctly even if the app crashes during startup.
@@ -2893,7 +2893,7 @@ Normally every codebase that will interact with many number of users, developers
 2.  How do we monitor its health and performance?
 3.  How do we ensure the database is ready before the app starts?
 
-![Devops Simple explain](https://miro.medium.com/v2/resize:fit:875/1*-rNVzjkCx5ACZUgg0V-jYg.png)
+
 *Devops Simple explain (Created by Ayo Remi)*
 
 This is where the **DevOps Layer** comes in which is responsible for infrastructure as code, CI/CD pipelines, and monitoring dashboards.
@@ -3321,7 +3321,7 @@ This is the distinction I want to highlight in the evaluation pipeline between a
 
 One of the biggest differences between a prototype and a production system is how it handles load. A Jupyter notebook runs one query at a time. A real-world application might need to handle hundreds of users chatting simultaneously which we call concurrency.
 
-![Stress Test](https://miro.medium.com/v2/resize:fit:1250/1*0c0Arp8GWnyV1tzc6O3UIw.png)
+
 *Stress Test (Created by Ayo Remi)*
 
 If we don’t test for concurrency, we risk:
@@ -3338,7 +3338,7 @@ To run this test, we cannot use a standard laptop. The network and CPU bottlenec
 
 We can use an **AWS m6i.xlarge** instance (4 vCPUs, 16 GiB RAM). This gives us enough compute power to generate load without becoming the bottleneck ourselves. The cost for this is roughly **$0.192 per hour** which for me is a small price to pay for confidence at least once.
 
-![Creating AWS EC2 Instance](https://miro.medium.com/v2/resize:fit:1250/1*0JCB7dGAiNnzlamgauZYbA.png)
+
 *Creating AWS EC2 Instance (Created by Ayo Remi)*
 
 Our instance is running Ubuntu 22.04 LTS along with `4vCPU` and `16GB RAM`. We open port `8000` in the security group to allow inbound traffic to our FastAPI app.
@@ -3372,7 +3372,7 @@ make docker-run-env ENV=development
 
 You can visit the instance ip address + 8000 port /docs link to view and inference the agentic API properly.
 
-![Our docs page](https://miro.medium.com/v2/resize:fit:1250/1*fuKVBcr1Uf2lHTq29nWIkw.png)
+
 *Our docs page*
 
 Now, let’s write the **Load Test Script**. We aren’t not just going to ping the health endpoint, we are sending full chat requests that trigger the LangGraph agent, hit the database, and call the LLM. So, lets create `tests/stress_test.py` for stress testing.
@@ -3491,7 +3491,7 @@ for result in response.json()['data']['result']:
 
 This is what we are getting back:
 
-![Our Prometheus Dashboard](https://miro.medium.com/v2/resize:fit:875/1*yVUU8-cXsMGJhMu8jZcWJg.png)
+
 *Our Prometheus Dashboard*
 
 ```bash
@@ -3521,7 +3521,7 @@ for trace in traces.data:
 
 Our langfuse dashboard is giving this …
 
-![Our grafana based dashboard](https://miro.medium.com/v2/resize:fit:875/1*cLsN9y3AbYl6INOVWU0ltw.png)
+
 *Our grafana based dashboard*
 
 ```bash
